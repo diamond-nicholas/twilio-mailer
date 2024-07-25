@@ -1,9 +1,6 @@
 package controllers
 
 import (
-	"bytes"
-	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"time"
@@ -12,8 +9,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nicholas/go-jwt/initializers"
 	"github.com/nicholas/go-jwt/models"
-	"github.com/sendgrid/sendgrid-go"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -54,7 +49,8 @@ if result.Error != nil {
 	
 }
 
-err = sendWelcomeEmail(user.Email, user.Name)
+
+err = SendEmail(user.Email, user.Name, "The Emailer", "templates/welcome.html", struct{ Name string }{Name: user.Name})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to send welcome email",
@@ -63,60 +59,6 @@ err = sendWelcomeEmail(user.Email, user.Name)
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
-}
-
-// func sendWelcomeEmail(toEmail, name string) error {
-// 	from := mail.NewEmail("Emailer",os.Getenv("SENDGRID_FROM") )
-// 	subject := "The Emailer"
-// 	to := mail.NewEmail(name, toEmail)
-// 	plainTextContent := fmt.Sprintf("Hello %s, welcome to our app!", name)
-// 	htmlContent := fmt.Sprintf("<strong>Hello %s, welcome to the emailer enjoy:)</strong>", name)
-// 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-
-// 	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
-// 	response, err := client.Send(message)
-// 	if err != nil {
-// 		return err
-// 	} else if response.StatusCode >= 400 {
-// 		return fmt.Errorf("failed to send email: %s", response.Body)
-// 	}
-// 	return nil
-// }
-
-
-func sendWelcomeEmail(toEmail, name string) error {
-	// Parse the email template
-	tmpl, err := template.ParseFiles("templates/welcome.html")
-	if err != nil {
-		return err
-	}
-
-	// Render the template with the data
-	var body bytes.Buffer
-	err = tmpl.Execute(&body, struct {
-		Name string
-	}{
-		Name: name,
-	})
-	if err != nil {
-		return err
-	}
-
-	from := mail.NewEmail("Twilio Emailer", os.Getenv("SENDGRID_FROM"))
-	subject := "The Emailer"
-	to := mail.NewEmail(name, toEmail)
-	plainTextContent := fmt.Sprintf("Hello %s, welcome to our app!", name)
-	htmlContent := body.String()
-	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-
-	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
-	response, err := client.Send(message)
-	if err != nil {
-		return err
-	} else if response.StatusCode >= 400 {
-		return fmt.Errorf("failed to send email: %s", response.Body)
-	}
-	return nil
 }
 
 
