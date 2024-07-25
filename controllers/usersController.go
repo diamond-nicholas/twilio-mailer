@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -9,6 +10,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nicholas/go-jwt/initializers"
 	"github.com/nicholas/go-jwt/models"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -49,8 +52,33 @@ if result.Error != nil {
 	
 }
 
-	//response
+err = sendWelcomeEmail(user.Email, user.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to send welcome email",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{})
+}
+
+func sendWelcomeEmail(toEmail, name string) error {
+	from := mail.NewEmail("Emailer",os.Getenv("SENDGRID_FROM") )
+	subject := "The Emailer"
+	to := mail.NewEmail(name, toEmail)
+	plainTextContent := fmt.Sprintf("Hello %s, welcome to our app!", name)
+	htmlContent := fmt.Sprintf("<strong>Hello %s, welcome to the emailer enjoy:)</strong>", name)
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+
+	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	response, err := client.Send(message)
+	if err != nil {
+		return err
+	} else if response.StatusCode >= 400 {
+		return fmt.Errorf("failed to send email: %s", response.Body)
+	}
+	return nil
 }
 
 
@@ -103,5 +131,11 @@ func Login(c *gin.Context){
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
+	})
+}
+
+func Validate(c *gin.Context){
+	c.JSON(http.StatusOK, gin.H{
+		"message" : 	"I'm logged in",
 	})
 }
