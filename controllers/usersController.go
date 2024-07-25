@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"time"
@@ -63,12 +65,48 @@ err = sendWelcomeEmail(user.Email, user.Name)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
+// func sendWelcomeEmail(toEmail, name string) error {
+// 	from := mail.NewEmail("Emailer",os.Getenv("SENDGRID_FROM") )
+// 	subject := "The Emailer"
+// 	to := mail.NewEmail(name, toEmail)
+// 	plainTextContent := fmt.Sprintf("Hello %s, welcome to our app!", name)
+// 	htmlContent := fmt.Sprintf("<strong>Hello %s, welcome to the emailer enjoy:)</strong>", name)
+// 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+
+// 	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+// 	response, err := client.Send(message)
+// 	if err != nil {
+// 		return err
+// 	} else if response.StatusCode >= 400 {
+// 		return fmt.Errorf("failed to send email: %s", response.Body)
+// 	}
+// 	return nil
+// }
+
+
 func sendWelcomeEmail(toEmail, name string) error {
-	from := mail.NewEmail("Emailer",os.Getenv("SENDGRID_FROM") )
+	// Parse the email template
+	tmpl, err := template.ParseFiles("templates/welcome.html")
+	if err != nil {
+		return err
+	}
+
+	// Render the template with the data
+	var body bytes.Buffer
+	err = tmpl.Execute(&body, struct {
+		Name string
+	}{
+		Name: name,
+	})
+	if err != nil {
+		return err
+	}
+
+	from := mail.NewEmail("Twilio Emailer", os.Getenv("SENDGRID_FROM"))
 	subject := "The Emailer"
 	to := mail.NewEmail(name, toEmail)
 	plainTextContent := fmt.Sprintf("Hello %s, welcome to our app!", name)
-	htmlContent := fmt.Sprintf("<strong>Hello %s, welcome to the emailer enjoy:)</strong>", name)
+	htmlContent := body.String()
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 
 	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
