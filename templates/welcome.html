@@ -3,11 +3,78 @@
   <head>
     <meta charset="UTF-8" />
     <title>Welcome to Our App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #0056b3;
+      }
+      p {
+        margin-bottom: 20px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #0056b3;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .footer {
+        margin-top: 20px;
+        font-size: 0.9em;
+        text-align: center;
+        color: #777;
+      }
+    </style>
   </head>
   <body>
-    <h1>Hello {{.Name}}, welcome to our app!</h1>
-    <p>
-      We're excited to have you on board. Get ready to explore our services.
-    </p>
+    <div class="container">
+      <h1>Hello {{.Name}}, Welcome to Our App!</h1>
+      <p>
+        We're thrilled to have you on board. Get ready to explore our services
+        and discover everything we have to offer.
+      </p>
+      <p>To help you get started, here are a few tips:</p>
+      <ul>
+        <li>
+          <strong>Explore Features:</strong> Dive into our app and explore the
+          wide range of features designed to enhance your experience.
+        </li>
+        <li>
+          <strong>Stay Updated:</strong> Keep an eye on your inbox for updates,
+          tips, and exclusive offers.
+        </li>
+        <li>
+          <strong>Connect with Us:</strong> Join our community on social media
+          and share your experiences.
+        </li>
+      </ul>
+      <p>
+        We're here to support you every step of the way. If you have any
+        questions or need assistance, don't hesitate to reach out to our support
+        team.
+      </p>
+      <a href="https://example.com" class="button">Get Started</a>
+    </div>
+    <div class="footer">
+      <p>&copy; 2024 Our App. All rights reserved.</p>
+      <p><a href="#">Unsubscribe</a> | <a href="#">Contact Us</a></p>
+    </div>
   </body>
 </html>
